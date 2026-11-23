@@ -10,15 +10,15 @@ $categoriasConsulta = $pdo->prepare('SELECT id, nombre FROM categorias ORDER BY 
 $categoriasConsulta->execute();
 $categorias = $categoriasConsulta->fetchAll();
 
-$totalConsulta = $pdo->prepare('SELECT COUNT(*) FROM productos WHERE estado = 1');
+$totalConsulta = $pdo->prepare('SELECT COUNT(*) FROM productos');
 $totalConsulta->execute();
 $totalProductos = (int) $totalConsulta->fetchColumn();
-$alertasConsulta = $pdo->prepare('SELECT COUNT(*) FROM productos WHERE estado = 1 AND stock_actual <= stock_minimo');
+$alertasConsulta = $pdo->prepare('SELECT COUNT(*) FROM productos WHERE stock_actual <= stock_minimo');
 $alertasConsulta->execute();
 $totalAlertas = (int) $alertasConsulta->fetchColumn();
 
 $sql = 'SELECT p.id, p.nombre, p.codigo, p.precio, p.stock_actual, p.stock_minimo, c.nombre AS categoria
-        FROM productos p INNER JOIN categorias c ON c.id = p.categoria_id WHERE p.estado = 1';
+        FROM productos p INNER JOIN categorias c ON c.id = p.categoria_id WHERE 1 = 1';
 $parametros = [];
 if ($busqueda !== '') {
     $sql .= ' AND (p.nombre LIKE :nombre OR p.codigo LIKE :codigo)';
@@ -51,7 +51,7 @@ require __DIR__ . '/includes/encabezado.php';
 <div class="row g-3 mb-4">
     <div class="col-md-6">
         <div class="card stat-card h-100"><div class="card-body p-4 d-flex align-items-center gap-3">
-            <div class="stat-icon">P</div><div><div class="text-secondary small">Productos activos</div><div class="fs-3 fw-bold"><?= $totalProductos ?></div></div>
+            <div class="stat-icon">P</div><div><div class="text-secondary small">Productos</div><div class="fs-3 fw-bold"><?= $totalProductos ?></div></div>
         </div></div>
     </div>
     <div class="col-md-6">
@@ -80,7 +80,7 @@ require __DIR__ . '/includes/encabezado.php';
         </form>
         <div class="table-responsive">
             <table class="table align-middle mb-0">
-                <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
+                <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Disponibilidad</th><th class="text-end">Acciones</th></tr></thead>
                 <tbody>
                 <?php foreach ($productos as $producto): ?>
                     <tr>
@@ -95,19 +95,16 @@ require __DIR__ . '/includes/encabezado.php';
                                 <span class="badge rounded-pill text-bg-success">Disponible</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-end text-nowrap">
-                            <a class="btn btn-sm btn-outline-secondary" href="producto_editar.php?id=<?= (int) $producto['id'] ?>">Editar</a>
-                            <a class="btn btn-sm btn-outline-primary" href="historial.php?producto_id=<?= (int) $producto['id'] ?>">Historial</a>
-                            <form class="d-inline" method="post" action="desactivar.php" onsubmit="return confirm('¿Desactivar este producto?');">
-                                <input type="hidden" name="csrf_token" value="<?= e(token_csrf()) ?>">
-                                <input type="hidden" name="id" value="<?= (int) $producto['id'] ?>">
-                                <button class="btn btn-sm btn-outline-danger" type="submit">Desactivar</button>
-                            </form>
+                        <td class="text-nowrap">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a class="btn btn-sm btn-outline-secondary" href="producto_editar.php?id=<?= (int) $producto['id'] ?>">Editar</a>
+                                <a class="btn btn-sm btn-outline-primary" href="historial.php?producto_id=<?= (int) $producto['id'] ?>">Historial</a>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$productos): ?>
-                    <tr><td class="empty-state text-center py-5" colspan="6">No se encontraron productos activos con estos filtros.</td></tr>
+                    <tr><td class="empty-state text-center py-5" colspan="6">No se encontraron productos con estos filtros.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

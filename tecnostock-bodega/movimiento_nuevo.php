@@ -4,7 +4,7 @@ require_once __DIR__ . '/config/conexion.php';
 require_once __DIR__ . '/includes/funciones.php';
 requerir_sesion();
 
-$productosConsulta = $pdo->prepare('SELECT id, nombre, codigo, stock_actual FROM productos WHERE estado = 1 ORDER BY nombre');
+$productosConsulta = $pdo->prepare('SELECT id, nombre, codigo, stock_actual FROM productos ORDER BY nombre');
 $productosConsulta->execute();
 $productos = $productosConsulta->fetchAll();
 $errores = [];
@@ -34,11 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errores) {
         $pdo->beginTransaction();
         try {
-            $bloqueo = $pdo->prepare('SELECT id, stock_actual FROM productos WHERE id = :id AND estado = 1 FOR UPDATE');
+            $bloqueo = $pdo->prepare('SELECT id, stock_actual FROM productos WHERE id = :id FOR UPDATE');
             $bloqueo->execute(['id' => $productoId]);
             $producto = $bloqueo->fetch();
             if (!$producto) {
-                $errores[] = 'El producto no existe o está desactivado.';
+                $errores[] = 'El producto no existe.';
                 $pdo->rollBack();
             } elseif ($tipo === 'SALIDA' && $cantidad > (int) $producto['stock_actual']) {
                 $errores[] = 'La salida no puede superar el stock actual (' . (int) $producto['stock_actual'] . ').';

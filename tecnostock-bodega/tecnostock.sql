@@ -31,13 +31,12 @@ CREATE TABLE productos (
     precio DECIMAL(12,2) NOT NULL,
     stock_actual INT UNSIGNED NOT NULL DEFAULT 0,
     stock_minimo INT UNSIGNED NOT NULL DEFAULT 0,
-    estado TINYINT(1) NOT NULL DEFAULT 1,
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     actualizado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT chk_productos_precio CHECK (precio >= 0),
     CONSTRAINT fk_productos_categorias FOREIGN KEY (categoria_id) REFERENCES categorias(id)
         ON UPDATE CASCADE ON DELETE RESTRICT,
-    INDEX idx_productos_estado_stock (estado, stock_actual, stock_minimo),
+    INDEX idx_productos_stock (stock_actual, stock_minimo),
     INDEX idx_productos_categoria (categoria_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

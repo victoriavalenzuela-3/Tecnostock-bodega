@@ -9,12 +9,12 @@ if ($id === false || $id < 1) {
     http_response_code(400);
     exit('Identificador de producto no válido.');
 }
-$productoConsulta = $pdo->prepare('SELECT * FROM productos WHERE id = :id AND estado = 1 LIMIT 1');
+$productoConsulta = $pdo->prepare('SELECT * FROM productos WHERE id = :id LIMIT 1');
 $productoConsulta->execute(['id' => $id]);
 $producto = $productoConsulta->fetch();
 if (!$producto) {
     http_response_code(404);
-    exit('Producto no encontrado o desactivado.');
+    exit('Producto no encontrado.');
 }
 $categoriasConsulta = $pdo->prepare('SELECT id, nombre FROM categorias ORDER BY nombre');
 $categoriasConsulta->execute();
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $actualizar = $pdo->prepare(
             'UPDATE productos SET categoria_id = :categoria_id, nombre = :nombre, codigo = :codigo,
              descripcion = :descripcion, precio = :precio, stock_actual = :stock_actual, stock_minimo = :stock_minimo
-             WHERE id = :id AND estado = 1'
+             WHERE id = :id'
         );
         $actualizar->execute([
             'categoria_id' => (int) $datos['categoria_id'],
